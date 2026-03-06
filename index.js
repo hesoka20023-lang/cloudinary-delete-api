@@ -6,7 +6,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// الإعدادات هتقرأ من الـ Variables اللي هنضيفها في Render
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
@@ -17,6 +16,15 @@ app.get('/', (req, res) => res.send('Cloudinary Server is Live! 🚀'));
 
 app.post('/delete-image', async (req, res) => {
   const { publicId } = req.body;
+  
+ 
+  const clientApiKey = req.headers['x-api-key'];
+
+  
+  if (!clientApiKey || clientApiKey !== process.env.MY_DELETE_API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized: Access Denied' });
+  }
+
   if (!publicId) return res.status(400).json({ error: 'Missing publicId' });
 
   try {
@@ -29,3 +37,5 @@ app.post('/delete-image', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+module.exports = app;
